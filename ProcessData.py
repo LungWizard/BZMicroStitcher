@@ -6,10 +6,10 @@ import numpy as np
 from ome_types import (to_xml)
 from ome_types.model.simple_types import UnitsLength, UnitsTime
 from ome_types.model import (OME, Image, Pixels, Instrument, InstrumentRef,
-                             Microscope, Objective, Channel, Plane)
-from apeer_ometiff_library import io
+                             Microscope, Objective, Channel, TiffData, Plane)
 from GCI_Data import KeyenceMetadata
 from UserInput import UserInput
+import tifffile
 
 ''' This line is needed because large images will return an error of a suspected 
 "decompression bomb DOS attack" '''
@@ -21,7 +21,6 @@ ImgPath = UserInput.img
 Img = PIL.Image.open(ImgPath)
 Objective_Mag = KeyenceMetadata.Lens_XML['Magnification']
 Binning_Settings = str(KeyenceMetadata.Channel3_CameraSettings_XML['Binnin'])
-FilterCube3 = KeyenceMetadata.Channel3_XML['Comment']
 
 
 '''Converting the image to a numpy array, then defining the image size in 
@@ -147,7 +146,7 @@ def Binning(Binning_Settings):
         print("Unable to determine if binning was used, assuming none.")
     return BinSize
 
-def SetColorMode(FilterCube3):
+def ColorModeCH4(FilterCube3):
     if FilterCube3 == "Brightfield":
         ColorDef = 'rgb'
     else:
@@ -159,7 +158,6 @@ ImgObjective, PixelSizeX, PixelSizeY = SelectObjective(int(Objective_Mag), Objec
                                                     Objective_10X, Objective_20X,
                                                     Objective_40X, Objective_100X,
                                                     Objective_X)
-ColorDef = SetColorMode(FilterCube3)
 
 Instrument_Config = Instrument(
     microscope = Keyence_Microscope,
@@ -171,11 +169,18 @@ Channel_Config = Channel(
     samples_per_pixel = Image_C)
 
 Plane_Config = Plane(
-    the_c = Image_C,
+    the_c = 1,
     the_t = 1,
     the_z = 1,
+    delta_t = 0,
     exposure_time = KeyenceMetadata.Ch3_Exposure,
     exposure_time_unit = UnitsTime.SECOND)
+
+Tiff_Config = TiffData(first_c = 1, 
+                       first_t = 1, 
+                       first_z = 1, 
+                       ifd = 0, 
+                       plane_count = 1)
 
 Image_Data = Image(
     name = ImgName,
@@ -194,7 +199,7 @@ Image_Data = Image(
         physical_size_y = PixelSizeY * BinSize,
         physical_size_y_unit = UnitsLength.MICROMETER,
         planes = [Plane_Config],
-        tiff_data_blocks = [(1,1,1)]))
+        tiff_data_blocks = [Tiff_Config]))
 
 ome.instruments.append(Instrument_Config)
 ome.images.append(Image_Data)
@@ -204,18 +209,10 @@ Final_OMEXML = to_xml(ome)
 save_path_file = "OME_XML.xml"
 with open(save_path_file, "w") as f:
     f.write(Final_OMEXML)
-    
-io.write_ometiff(ImgName + '.ome.tif', ImgArray, ColorDef,
-                 omexml_string = Final_OMEXML)
+
+tifffile.imwrite(ImgName + '.ome.tif', ImgArray,  photometric = 'rgb', 
+                 description = Final_OMEXML, metadata = None) 
 
 
-'''
-I made some changes to the io.py script found in the apeer-ometiff-library package. These changes are shown below.
-def write_ometiff(output_path, array, ColorDef, omexml_string = None):    
-    if omexml_string is None:
-        omexml_string = gen_xml(array)
-    tifffile.imwrite(output_path, array,  photometric = ColorDef, description=omexml_string, metadata = None)
-    #"minisblack", with quotes, changed to ColorDef and ColorDef was added to the function arguments so it can be set in other scripts
-'''
 
     
