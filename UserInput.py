@@ -32,4 +32,8 @@ class UserInput():
                             XYID[X-1] + '/' + str(SlideID[X-1]) + '.tif')
     
     for X in range (0, Num_Slides):
-        Create_OMETIFF(GCI_List[X-1], ImgPath_List[X-1])
+        try:
+           Create_OMETIFF(GCI_List[X-1], ImgPath_List[X-1])
+        except:
+            pass
+        
