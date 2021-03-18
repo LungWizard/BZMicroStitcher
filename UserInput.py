@@ -1,17 +1,15 @@
 import openpyxl
 from ProcessData import Create_OMETIFF
+import pyprog
 #USER INPUT
 class UserInput():
-    MainDirectory = 'C:'
+    MainDirectory = 'D:/WSI/03012021'
     SlideID = []
     GroupID = []
     XYID = []
     GCI_List = []
     ImgPath_List = []
-  #  GCI = []
-  #  ImgPath = []
-    WSI_List = openpyxl.load_workbook("OME-TIFF.xlsx").worksheets[0]
-    #WSI_Worksheet = SlideList.worksheets[0]
+    WSI_List = openpyxl.load_workbook("D:/WSI/03012021/03012021.xlsx").worksheets[0]
     Num_Slides = WSI_List.max_row
 
     X = 1
@@ -27,13 +25,22 @@ class UserInput():
         
     for X in range (0, Num_Slides):
         GCI_List.append(MainDirectory + '/' + str(GroupID[X-1]) + '/' +
-                        XYID[X-1] + '/' + '*.gci')
+                        str(XYID[X-1]) + '/' + '*.gci')
         ImgPath_List.append(MainDirectory + '/' + str(GroupID[X-1]) + '/' +
-                            XYID[X-1] + '/' + str(SlideID[X-1]) + '.tif')
+                            str(XYID[X-1]) + '/' + str(SlideID[X-1]) + '.tif') 
+
+    ProgBar = pyprog.ProgressBar(" ", " ", total = Num_Slides, 
+                              bar_length = 26, 
+                              complete_symbol = "=", 
+                              not_complete_symbol = " ", 
+                              wrap_bar_prefix = " [", wrap_bar_suffix="] ",
+                              progress_explain = "", 
+                              progress_loc = pyprog.ProgressBar.PROGRESS_LOC_END)
     
     for X in range (0, Num_Slides):
         try:
-           Create_OMETIFF(GCI_List[X-1], ImgPath_List[X-1])
+            Create_OMETIFF(GCI_List[X-1], ImgPath_List[X-1])
+            ProgBar.set_stat(X + 1)
+            ProgBar.update()
         except:
             pass
-        

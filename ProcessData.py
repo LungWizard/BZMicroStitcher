@@ -304,7 +304,8 @@ def Create_OMETIFF(GCI_List, ImgPath_List):
         
     #Write the OME-TIFF
     tifffile.imwrite(ImgName + '.ome.tif', ImgArray,  photometric = 'rgb', 
-                     description = Final_OMEXML, metadata = None) 
+                     compression='deflate', description = Final_OMEXML,
+                     metadata = None) 
         
     #Close the original TIFF image
     Img.close()
