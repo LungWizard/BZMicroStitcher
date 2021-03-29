@@ -329,7 +329,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
         f.write(Final_OMEXML)
         
     #Write the OME-TIFF
-    tifffile.imwrite(MainDirectory + SlideID + '.ome.tif', ImgArray,  photometric = 'rgb', 
+    tifffile.imwrite(MainDirectory + '/' + SlideID + '.ome.tif', ImgArray,  photometric = 'rgb', 
                      compression='deflate', description = Final_OMEXML,
                      metadata = None) 
         
