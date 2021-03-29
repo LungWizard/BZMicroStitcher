@@ -46,7 +46,7 @@ def StartProcessing():
         Path_List.append(MainDirectory + '/' + str(GroupID[Y]) + '/' + 
                             str(XYID[Y]))
 
-
+    print("Stitching Files")
     for X in range (0, Num_Slides-1):
         try:
             Stitch(GCI_List[X], Path_List[X])
@@ -54,7 +54,7 @@ def StartProcessing():
             ErrorLog.write("Something is not right, unable to stitch: " + GCI_List[X] + ", " + 
                   ImgPath_List[X] + ", " + SlideID [X] + "\n")
             pass
-    
+    print("Creating OME-TIFF")
     for X in range (0, Num_Slides-1):
         try:
             Create_OMETIFF(MainDirectory, GCI_List[X], ImgPath_List[X], SlideID[X])
@@ -65,7 +65,7 @@ def StartProcessing():
 
     ErrorLog.write("If this is the only line you see then everything went well! YAY!")
     ErrorLog.close()
-    print("Processing Files")
+
 
 #Main Directory Selection
 MainDirectory_Var = StringVar()
