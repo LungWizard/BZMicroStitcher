@@ -13,7 +13,36 @@ import zipfile
 import xml.dom.minidom
 import glob
 
-def Create_OMETIFF(GCI_List, ImgPath_List):
+#Stitching
+import stitch2d
+
+''' This line is needed because large images will return an error of a suspected 
+"decompression bomb DOS attack" '''
+PIL.Image.MAX_IMAGE_PIXELS = 10000000000
+
+def Stitch(GCI_List, Path_List):
+    GCI_Path = glob.glob(GCI_List)
+    GCI = GCI_Path[0]
+    GCI_Zip  = zipfile.ZipFile(GCI, "r")
+    def parseProperties(GCI_Zip, zipinfo):
+        with GCI_Zip.open(zipinfo) as GCI_info:
+            dom = xml.dom.minidom.parse(GCI_info)
+            return {node.tagName : node.firstChild.data 
+                    if node.firstChild is not None 
+                    else None for node in dom.firstChild.childNodes}
+    ImageJoint_XML = parseProperties(GCI_Zip, "GroupFileProperty/ImageJoint/properties.xml")
+    x_num = ImageJoint_XML['Column']
+    stitch2d.mosey(path = Path_List,
+                   output = Path_List,
+                   scalar = 0.7,
+                   equalize_histogram = True, 
+                   threshold = 0.5, 
+                   num_cols = int(x_num),
+                   snake = True,
+                   label = None)
+
+
+def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
     GCI_Path = glob.glob(GCI_List)
     GCI = GCI_Path[0]
     GCI_Zip  = zipfile.ZipFile(GCI, "r")
@@ -101,10 +130,7 @@ def Create_OMETIFF(GCI_List, ImgPath_List):
     
     '''Channel 5 is reserved for the RGB composite that the microscope generates and is not
     relevant for our use'''
-    ''' This line is needed because large images will return an error of a suspected 
-    "decompression bomb DOS attack" '''
 
-    PIL.Image.MAX_IMAGE_PIXELS = 10000000000
 
     #GCI = KeyenceMetadata.GCI
     #ImgPath = UserInput.img
@@ -303,7 +329,7 @@ def Create_OMETIFF(GCI_List, ImgPath_List):
         f.write(Final_OMEXML)
         
     #Write the OME-TIFF
-    tifffile.imwrite(ImgName + '.ome.tif', ImgArray,  photometric = 'rgb', 
+    tifffile.imwrite(MainDirectory + SlideID + '.ome.tif', ImgArray,  photometric = 'rgb', 
                      compression='deflate', description = Final_OMEXML,
                      metadata = None) 
         
