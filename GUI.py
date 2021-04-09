@@ -60,7 +60,7 @@ def StartProcessing():
             Create_OMETIFF(MainDirectory, GCI_List[X], ImgPath_List[X], SlideID[X])
         except:
             ErrorLog.write("Something is not right, unable to create OME-TIFF: " 
-                           + GCI_List[X] + ", " + ImgPath_List[X] + ", " + SlideID [X] + "\n")
+                           + GCI_List[X] + ", " + ImgPath_List[X] + ", " + SlideID[X] + "\n")
             pass
 
     ErrorLog.write("If this is the only line you see then everything went well! YAY!")
@@ -72,7 +72,7 @@ MainDirectory_Var = StringVar()
 MainLabel = Label(gui ,text="Choose Directory")
 MainLabel.grid(row=0,column = 0)
 Direc_Entry = Entry(gui,textvariable=MainDirectory_Var)
-Direc_Entry.grid(row=0,column=1)
+Direc_Entry.grid(row=0,column=1) 
 btnFind = ttk.Button(gui, text="Browse Folder",command = getMainDirectory)
 btnFind.grid(row=0,column=2)
 

@@ -21,26 +21,28 @@ import stitch2d
 PIL.Image.MAX_IMAGE_PIXELS = 10000000000
 
 def Stitch(GCI_List, Path_List):
-    GCI_Path = glob.glob(GCI_List)
-    GCI = GCI_Path[0]
-    GCI_Zip  = zipfile.ZipFile(GCI, "r")
-    def parseProperties(GCI_Zip, zipinfo):
-        with GCI_Zip.open(zipinfo) as GCI_info:
-            dom = xml.dom.minidom.parse(GCI_info)
+    try: 
+        GCI_Path = glob.glob(GCI_List)
+        GCI = GCI_Path[0]
+        GCI_Zip  = zipfile.ZipFile(GCI, "r")
+        def parseProperties(GCI_Zip, zipinfo):
+            with GCI_Zip.open(zipinfo) as GCI_info:
+                dom = xml.dom.minidom.parse(GCI_info)
             return {node.tagName : node.firstChild.data 
                     if node.firstChild is not None 
                     else None for node in dom.firstChild.childNodes}
-    ImageJoint_XML = parseProperties(GCI_Zip, "GroupFileProperty/ImageJoint/properties.xml")
-    x_num = ImageJoint_XML['Column']
-    stitch2d.mosey(path = Path_List,
-                   output = Path_List,
-                   scalar = 0.7,
-                   equalize_histogram = True, 
-                   threshold = 0.5, 
-                   num_cols = int(x_num),
-                   snake = True,
-                   label = None)
-
+        ImageJoint_XML = parseProperties(GCI_Zip, "GroupFileProperty/ImageJoint/properties.xml")
+        x_num = ImageJoint_XML['Column']
+        stitch2d.mosey(path = Path_List,
+                       output = Path_List,
+                       scalar = 0.7,
+                       equalize_histogram = True, 
+                       threshold = 0.5, 
+                       num_cols = int(x_num),
+                       snake = True,
+                       label = None)
+    except:
+        pass
 
 def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
     GCI_Path = glob.glob(GCI_List)
@@ -169,6 +171,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
     
     #Objective Information
     Objective_4X = Objective(
+        id = 'Objective:1',
         manufacturer = 'Keyence Corporation', #This will not change
         model = '4X PlanFluor',
         nominal_magnification = 4,
@@ -178,6 +181,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
         immersion = 'Air')
     
     Objective_10X = Objective(
+        id = 'Objective:2',
         manufacturer = 'Keyence Corporation', #This will not change
         model = '10X PlanFluor',
         nominal_magnification = 10,
@@ -187,6 +191,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
         immersion = 'Air')
     
     Objective_20X = Objective(
+        id = 'Objective:3',
         manufacturer = 'Keyence Corporation', #This will not change
         model = '20X PlanApo',
         nominal_magnification = 20,
@@ -196,6 +201,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
         immersion = 'Air')
     
     Objective_40X = Objective(
+        id = 'Objective:4',
         manufacturer = 'Keyence Corporation', #This will not change
         model = '40X PlanApo',
         nominal_magnification = 40,
@@ -205,6 +211,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
         immersion = 'Air')
     
     Objective_100X = Objective(
+        id = 'Objective:5',
         manufacturer = 'Keyence Corporation', #This will not change
         model = '100X PlanApo',
         nominal_magnification = 100,
@@ -278,6 +285,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
                                                            Objective_X)
 
     Instrument_Config = Instrument(
+        id = 'Instrument:1',
         microscope = Keyence_Microscope,
         objectives = [ImgObjective])
 
@@ -287,9 +295,9 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
         samples_per_pixel = Image_C)
     
     Plane_Config = Plane(
-        the_c = 1,
-        the_t = 1,
-        the_z = 1,
+        the_c = 0,
+        the_t = 0,
+        the_z = 0,
         delta_t = 0,
         exposure_time = Ch3_Exposure,
         exposure_time_unit = UnitsTime.SECOND)
