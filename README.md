@@ -11,3 +11,4 @@ Requires:
 7. PIL
 8. numpy
 9. ome_types
+10. pyside2
