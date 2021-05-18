@@ -8,7 +8,8 @@ Requires:
 4. tkinter
 5. openpyxl
 6. datetime
-7. PIL
+7. pillow
 8. numpy
 9. ome_types
 10. pyside2
+11. tifffile
