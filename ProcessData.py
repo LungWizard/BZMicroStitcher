@@ -17,7 +17,7 @@ import glob
 import stitch2d
 
 ''' This line is needed because large images will return an error of a suspected 
-"decompression bomb DOS attack" '''
+"decompression bomb DOS attack." This maximum image size is arbitrary.'''
 PIL.Image.MAX_IMAGE_PIXELS = 10000000000
 
 def Stitch(GCI_List, Path_List):
@@ -33,18 +33,23 @@ def Stitch(GCI_List, Path_List):
                     else None for node in dom.firstChild.childNodes}
         ImageJoint_XML = parseProperties(GCI_Zip, "GroupFileProperty/ImageJoint/properties.xml")
         x_num = ImageJoint_XML['Column']
-        stitch2d.mosey(path = Path_List,
-                       output = Path_List,
-                       scalar = 0.7,
-                       equalize_histogram = True, 
-                       threshold = 0.5, 
-                       num_cols = int(x_num),
-                       snake = True,
-                       label = None)
+        stitch2d.Mosaic.num_cores = 1
+        X = stitch2d.create_mosaic(Path_List,
+                                  dim = int(x_num),
+                                  origin = "upper left",
+                                  direction = "horizontal",
+                                  pattern = "snake")
+        X.align()
+        X.smooth_seams()
+        X_arr = X.stitch()
+        #OpenCV, used to stitch/align the images, uses BGR and not RGB when ordering the colors so we need to change the order
+        X_arr = X_arr[...,::-1]
+        return X_arr
+
     except:
         pass
 
-def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
+def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID, Stitched_Image):
     GCI_Path = glob.glob(GCI_List)
     GCI = GCI_Path[0]
     GCI_Zip  = zipfile.ZipFile(GCI, "r")
@@ -58,6 +63,9 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
     Toplevel_XML = parseProperties(GCI_Zip, "GroupFileProperty/properties.xml")
     ImageJoint_XML = parseProperties(GCI_Zip, "GroupFileProperty/ImageJoint/properties.xml")
     Image_XML = parseProperties(GCI_Zip, "GroupFileProperty/Image/properties.xml")
+
+    #Stack Information
+    Stack_XML = parseProperties(GCI_Zip, 'GroupFileProperty/Stack/properties.xml')
 
     #Objective Information
     Lens_XML = parseProperties(GCI_Zip, "GroupFileProperty/Lens/properties.xml")
@@ -103,10 +111,14 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
     Channel4_Balance_XML = parseProperties(GCI_Zip, "GroupFileProperty/Channel4/ImageCorrection/WhiteBalance/properties.xml")
     
     
-    #Number of tiles in the X and Y direction
+    #Number of Tiles in the X and Y Direction
     x_num = ImageJoint_XML['Column']
     y_num = ImageJoint_XML['Row']
-    
+
+    #Number of Z-sections and Pitch
+    z_num = Stack_XML['TotalNumber']
+    z_pitch = int(Stack_XML['Pitch'])/10
+
     #Objective Information
     Objective_Mag = Lens_XML['Magnification']
     
@@ -136,16 +148,16 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
 
     #GCI = KeyenceMetadata.GCI
     #ImgPath = UserInput.img
-   # ImgPath_Path = glob.glob(ImgPath_List)
+    #ImgPath_Path = glob.glob(ImgPath_List)
     ImgPath = ImgPath_List
-    Img = PIL.Image.open(ImgPath)
+    #Img = PIL.Image.open(ImgPath)
     Objective_Mag = Lens_XML['Magnification']
     Binning_Settings = str(Channel3_CameraSettings_XML['Binnin'])
 
 
     '''Converting the image to a numpy array, then defining the image size in 
     X and Y in addition to defining the number of channels in the image'''
-    ImgArray = np.array(Img)
+    ImgArray = np.array(Stitched_Image)
     #Number of pixels in the Y direction
     Image_Y = int(ImgArray.shape[0])
     #Number of pixels in the X direction
@@ -337,9 +349,7 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID):
         f.write(Final_OMEXML)
         
     #Write the OME-TIFF
-    tifffile.imwrite(MainDirectory + '/' + SlideID + '.ome.tif', ImgArray,  photometric = 'rgb', 
+    #changed imwrite to imsave
+    tifffile.imsave(MainDirectory + '/' + SlideID + '.ome.tif', Stitched_Image, photometric = 'rgb', 
                      compression='deflate', description = Final_OMEXML,
-                     metadata = None) 
-        
-    #Close the original TIFF image
-    Img.close()
+                     metadata = None)
