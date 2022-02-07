@@ -20,7 +20,7 @@ import stitch2d
 "decompression bomb DOS attack." This maximum image size is arbitrary.'''
 PIL.Image.MAX_IMAGE_PIXELS = 10000000000
 
-def Stitch(GCI_List, Path_List):
+def Stitch(MainDirectory, GCI_List, Path_List, ImgPath_List, SlideID):
     try: 
         GCI_Path = glob.glob(GCI_List)
         GCI = GCI_Path[0]
@@ -33,20 +33,41 @@ def Stitch(GCI_List, Path_List):
                     else None for node in dom.firstChild.childNodes}
         ImageJoint_XML = parseProperties(GCI_Zip, "GroupFileProperty/ImageJoint/properties.xml")
         x_num = ImageJoint_XML['Column']
+        
+        #Number of cores to use
+        #Currently only works with 1 core for some reason
         stitch2d.Mosaic.num_cores = 1
+        
+        #Settings for Stitching the WSI
         X = stitch2d.create_mosaic(Path_List,
                                   dim = int(x_num),
                                   origin = "upper left",
                                   direction = "horizontal",
                                   pattern = "snake")
+        
+        #Align the images
+        print("Aligning " + SlideID)
         X.align()
+        
+        #Smooth seems between images
+        print("Smoothing Seams...")
         X.smooth_seams()
+        
+        print("Stitching " + SlideID)
+        #Return the stitched image as an array to convert to OME-TIFF
         X_arr = X.stitch()
         #OpenCV, used to stitch/align the images, uses BGR and not RGB when ordering the colors so we need to change the order
         X_arr = X_arr[...,::-1]
-        return X_arr
+        
+        #Define the array as "Stitched_Image"
+        Stitched_Image = X_arr
+        
+        #Create the OME-TIFF
+        print("Converting " + SlideID + " to OME-TIFF")
+        Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID, Stitched_Image)
 
     except:
+        print("There was an error! I quit.")
         pass
 
 def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID, Stitched_Image):

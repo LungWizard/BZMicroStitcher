@@ -25,7 +25,6 @@ def StartProcessing():
     GCI_List = []
     ImgPath_List = []
     Path_List = []
-    Stitched_Image = []
     Num_Slides = WSI_List.max_row
     ErrorLog = open(MainDirectory + '/' + 'Error_Log.txt', 'a+')
 
@@ -50,22 +49,12 @@ def StartProcessing():
     print("Stitching Files")
     for X in range (0, Num_Slides-1):
         try:
-            Stitch_arr = Stitch(GCI_List[X], Path_List[X])
-            Stitched_Image.append(Stitch_arr)
+            Stitch_arr = Stitch(MainDirectory, GCI_List[X], Path_List[X], ImgPath_List[X], SlideID[X])
+            Stitch_arr
         except:
             ErrorLog.write("Something is not right, unable to stitch: " + GCI_List[X] + ", " + 
                   ImgPath_List[X] + ", " + SlideID [X] + "\n")
             pass
-    print("Creating OME-TIFF")
-    for X in range (0, Num_Slides-1):
-        try:
-            Create_OMETIFF(MainDirectory, GCI_List[X], ImgPath_List[X], SlideID[X], Stitched_Image[X])
-        except:
-            print("Error while creating OME-TIFF")
-            ErrorLog.write("Something is not right, unable to create OME-TIFF: " 
-                           + GCI_List[X] + ", " + ImgPath_List[X] + ", " + SlideID [X] + "\n")
-            pass
-
     ErrorLog.write("If this is the only line you see then everything went well! YAY!")
     ErrorLog.close()
 
