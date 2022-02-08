@@ -1,4 +1,4 @@
-name: Keyence_OME-TIFF
+name: BZMicroStitcher
 channels:
   - menpo
   - bioconda
