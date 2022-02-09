@@ -1,6 +1,6 @@
 from tkinter import Tk, ttk, filedialog, Entry, Label, StringVar
 import openpyxl
-from ProcessData import Stitch, Create_OMETIFF
+from BZMicroStitcher.ProcessData import Stitch, Create_OMETIFF
 
 gui = Tk()
 gui.geometry("325x80")
