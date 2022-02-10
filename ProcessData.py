@@ -167,11 +167,8 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID, Stitched_Imag
     relevant for our use'''
 
 
-    #GCI = KeyenceMetadata.GCI
-    #ImgPath = UserInput.img
-    #ImgPath_Path = glob.glob(ImgPath_List)
     ImgPath = ImgPath_List
-    #Img = PIL.Image.open(ImgPath)
+
     Objective_Mag = Lens_XML['Magnification']
     Binning_Settings = str(Channel3_CameraSettings_XML['Binnin'])
 
@@ -370,7 +367,6 @@ def Create_OMETIFF(MainDirectory, GCI_List, ImgPath_List, SlideID, Stitched_Imag
         f.write(Final_OMEXML)
         
     #Write the OME-TIFF
-    #changed imwrite to imsave
     tifffile.imsave(MainDirectory + '/' + SlideID + '.ome.tif', Stitched_Image, photometric = 'rgb', 
                      compression='deflate', description = Final_OMEXML,
                      metadata = None)
