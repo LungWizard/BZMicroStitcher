@@ -1,2 +1,2 @@
-#BZMicroStitcher
-#About BZMicroStitcher
+# BZMicroStitcher
+## About BZMicroStitcher
