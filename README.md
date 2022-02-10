@@ -45,4 +45,5 @@ python -m BZMicroStitcher
 ```
 **4.** When the GUI opens, select the MAIN folder that contains each group of scanned slides. Then select the XLSX file which you have created earlier. You can now start stitching.
 Unfortunetly, there may not be an indication that anything is happening at this time depending on how large your images are, but over time the final images will be saved to the main folder containing all of the groups.
+
 **5.** When finished, you may close the GUI. :)
