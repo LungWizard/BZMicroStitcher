@@ -17,6 +17,8 @@ The next best way would be to use pip from the terminal:
 pip install BZMicroStitcher
 ```
 ## How do I use BZMicroStitcher
+**CHANNEL 4 NEEDS TO BE USED FOR SCANNING, BUT THIS MAY CHANGE IN A FUTURE RELEASE**
+
 **1.** Make sure that you save all of your whole slide images into a single directory as shown below. Since the BZ-X810 microscope can scan 3 slides at a time I am going to assume that there is only 3 scanned slides per folder:
 ```
 Slide_Folder
