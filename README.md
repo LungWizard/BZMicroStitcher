@@ -43,7 +43,7 @@ Slide_Folder
 
 **3.** When ready, start your Anaconda environment and/or open a cmd terminal and type:
 ```
-python -m BZMicroStitcher
+python -m bzmicrostitcher
 ```
 **4.** When the GUI opens, select the MAIN folder that contains each group of scanned slides. Then select the XLSX file which you have created earlier. You can now start stitching.
 Unfortunetly, there may not be an indication that anything is happening at this time depending on how large your images are, but over time the final images will be saved to the main folder containing all of the groups.
