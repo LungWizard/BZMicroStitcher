@@ -37,7 +37,7 @@ setuptools.setup(
 	'ome-types==0.2.4',
 	'datetime==4.3',
 	'openpyxl==3.0.9',
-	'pillow==9.0.0',
+	'pillow==9.0.1',
         'scikit-image>=0.19.1'
 ]
 
